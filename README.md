@@ -18,3 +18,6 @@ http://homologacion.horus.clipsite.com.ar:554
 
 El usuario, Password y Perfil se obtienen en esta primer etapa desde el software descargable desde http://horus.clipsite.com.ar.
 
+Ejemplo de como usar el administrador aca:
+
+https://www.youtube.com/watch?v=R8AcntEprjE
