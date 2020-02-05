@@ -99,6 +99,8 @@ namespace APIDemo
                 // LO PRIMERO QUE HACEMOS ES CONSULTAR A LA VARIABLE READY PARA VER SI AUN HAY UNA RESPUESTA POR OBTENER DEL SERVIDOR ANTES DE ENVIAR UNA NUEVA CONSULTA
                 if (Ready == true)
                 {
+                    Ready == false;
+                    
                     // LLAMAMOS A LA FUNCION DE TOKEN
                     GetToken();
 
