@@ -1,7 +1,8 @@
-﻿using System;
+using System;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Windows.Forms;
@@ -23,7 +24,7 @@ namespace APIDemo
         // ACA VAN LOS DATOS DEL SERVIDOR, LOS MISMO SE PUEDEN OBTENER DE LA APLICACION DE ADMINISTRACION O DESDE LA WEB DE ADMINISTRACION DEL SERVICIO
 
 
-        String ServerAPIURL = "http://homologacion.horus.clipsite.com.ar:554/production"; // << modificar por la URL del servidor en formato http://.........../produccion
+        String ServerAPIURL = "http://horus.clipsite.com.ar/services"; // << modificar por la URL del servidor en formato http://.........../produccion
         String ServerUser = ""; // << modificar por el usuario creado en el administrador de la API
         String ServerPassword = ""; // << modificar por la clave creada en el adminisrador de la API
         String Profile = ""; // << escribir el UUID correspondiente al perfil creado en el administrador de la API, el mismo debe estar bajo el miosmo usuario arriba escrito
@@ -61,14 +62,13 @@ namespace APIDemo
                 HttpResponseMessage response;
 
                 // DEFINIMOS LAS VARIABLES DE LA FUNCION
-                form.Add(new StringContent("pipe"), "responseformat");  // responseformat: Define como es que queremos recibir la respuesta, las opciones son (siempre en minusculas): xml, json o pipe.
-                form.Add(new StringContent("gettoken"), "action"); // action: Define la funcion que se le solicita al servidor, en este caso usamos "gettoken" para obtener el token.
-                form.Add(new StringContent(ServerUser), "user");   // user: es la primera de tres variables que toma "gettoken"
+                form.Add(new StringContent(ServerUser), "user"); // user: es la primera de tres variables que toma "gettoken"
                 form.Add(new StringContent(ServerPassword), "password"); // password es la segunda de tres variables que toma "gettoken"
                 form.Add(new StringContent(Profile), "profileuuid"); // profileuuid: es la tercera de tres variables que toma "gettoken"
 
+
                 // ENVIO LOS DATOS AL SERVIDOR
-                response = await httpClient.PostAsync(ServerAPIURL, form);
+                response = await httpClient.PostAsync(ServerAPIURL + "/api/v2/functions/login", form);
 
                 response.EnsureSuccessStatusCode();
                 httpClient.Dispose();
@@ -99,8 +99,6 @@ namespace APIDemo
                 // LO PRIMERO QUE HACEMOS ES CONSULTAR A LA VARIABLE READY PARA VER SI AUN HAY UNA RESPUESTA POR OBTENER DEL SERVIDOR ANTES DE ENVIAR UNA NUEVA CONSULTA
                 if (Ready == true)
                 {
-                    Ready == false;
-                    
                     // LLAMAMOS A LA FUNCION DE TOKEN
                     GetToken();
 
@@ -113,13 +111,11 @@ namespace APIDemo
                     String Recivedtmp = "";
 
                     // DEFINIMOS LAS VARIABLES DE LA FUNCION
-                    form.Add(new StringContent("pipe"), "responseformat"); // responseformat: Define como es que queremos recibir la respuesta, las opciones son (siempre en minusculas): xml, json o pipe.
-                    form.Add(new StringContent("faceid"), "action");   // action: Define la funcion que se le solicita al servidor, en este caso usamos "faceid" para obtener las coordenadas del rostro detectado y el UUID de la dereccion.
-                    form.Add(new StringContent(token), "token");       // token: Excepto en la funcion "gettoken", en todas las demas deberemos enviar el token generado justamente por "gettoken" ya que es el usuario y la clave que nos permite acceder al servicio, sin esto recibiremos un mensaje de usuario incorrecto
+                    httpClient.DefaultRequestHeaders.Add("Authorization", "Bearer " + token); // token: Excepto en la funcion "gettoken", en todas las demas deberemos enviar el token generado justamente por "gettoken" ya que es el usuario y la clave que nos permite acceder al servicio, sin esto recibiremos un mensaje de usuario incorrecto
                     form.Add(new ByteArrayContent(imageToByteArray(currentFrame.ToBitmap()), 0, imageToByteArray(currentFrame.ToBitmap()).Length), "photo", "image"); // photo: Envia el bytestream de la imagen la cual debe estar en formato JPG.
 
                     // ENVIO LOS DATOS AL SERVIDOR
-                    response = await httpClient.PostAsync(ServerAPIURL, form);
+                    response = await httpClient.PostAsync(ServerAPIURL + "/api/v2/functions/face/id", form);
 
                     response.EnsureSuccessStatusCode();
                     httpClient.Dispose();
@@ -143,25 +139,13 @@ namespace APIDemo
                                 // SEPARAMOS LAS LINEAS EN "|" YA QUE outformat LO DEFINIMOS COMO pipe
                                 String[] Values = Metaline.Split('|');
 
-                                // DECLARAMOS LAS FUNCIONES NECESARIAS PARA ACCEDER AL SERVICIO ON LINE EN ESTE CASO CON NUEVOS VALORES TERMINADOS EN 1 PARA QUE NO SE PONGAN EN CONFLICTO CON LOS DECLARADOS AL INICIO DE LA FUNCION
-                                HttpClient httpClient1 = new HttpClient();
-                                MultipartFormDataContent form1 = new MultipartFormDataContent();
-                                HttpResponseMessage response1;
 
-                                // DEFINIMOS LAS VARIABLES DE LA FUNCION
-                                form1.Add(new StringContent("pipe"), "responseformat"); // responseformat: Define como es que queremos recibir la respuesta, las opciones son (siempre en minusculas): xml, json o pipe.
-                                form1.Add(new StringContent("getdetectionname"), "action"); //action: En action usamos la funcion "getdetectionname" para poder acceder al nombre canonico en base al UUID que recibimos en la dereccion
-                                form1.Add(new StringContent(Values[6]), "detectionuuid"); // detectionuuid: es la unica variable que toma getdetectionname para devolver el canonico del UUID que recibimos de en la dereccion
-                                form1.Add(new StringContent(token.Trim()), "token"); // token: Excepto en la funcion "gettoken", en todas las demas deberemos enviar el token generado justamente por "gettoken" ya que es el usuario y la clave que nos permite acceder al servicio, sin esto recibiremos un mensaje de usuario incorrecto
+                                WebClient webClient = new WebClient();
+                                webClient.Headers.Add("Authorization", "Bearer " + token);
 
-                                // ENVIO LOS DATOS AL SERVIDOR
-                                response1 = await httpClient1.PostAsync(ServerAPIURL, form1);
+                                String response1 = webClient.DownloadString(ServerAPIURL + "/api/v2/admin/accounts/users/profiles/detections=" + Values[6] + "/value");
 
-                                response1.EnsureSuccessStatusCode();
-                                httpClient1.Dispose();
-
-                                // SEPARO LA RESPUESTA EN "|" YA QUE DEFINIMOS QUE outformat ESTA EN pipe
-                                String[] RecivedMatrix1 = response1.Content.ReadAsStringAsync().Result.Split('|');
+                                String[] RecivedMatrix1 = response1.Split('|');
 
                                 // SI EL CODIGO RECIBIDO EN LA POSICION O ES 200 SIGNIFICA QUE EL SERVIDOR RESPONDIO CORRECTAMENTE CON EL CANONICO DEL UUID POR LO CUAL PROCEDEMOS A REMPLAZARLO EN EL STRING DE DETECCION
                                 if (RecivedMatrix1[0] == "200")
