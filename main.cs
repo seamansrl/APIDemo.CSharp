@@ -24,7 +24,7 @@ namespace APIDemo
         // ACA VAN LOS DATOS DEL SERVIDOR, LOS MISMO SE PUEDEN OBTENER DE LA APLICACION DE ADMINISTRACION O DESDE LA WEB DE ADMINISTRACION DEL SERVICIO
 
 
-        String ServerAPIURL = "http://horus.clipsite.com.ar/services"; // << modificar por la URL del servidor en formato http://.........../produccion
+        String ServerAPIURL = "https://server1.proyectohorus.com.ar"; // << modificar por la URL del servidor en formato http://.........../produccion
         String ServerUser = ""; // << modificar por el usuario creado en el administrador de la API
         String ServerPassword = ""; // << modificar por la clave creada en el adminisrador de la API
         String Profile = ""; // << escribir el UUID correspondiente al perfil creado en el administrador de la API, el mismo debe estar bajo el miosmo usuario arriba escrito
