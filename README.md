@@ -16,7 +16,7 @@ al 01-02-2020 el proyecto estas en modo beta por lo cual para poder acceder y co
 La URL a usar en el codigo de ejemplo es:
 https://server1.proyectohorus.com.ar
 
-El usuario, Password y Perfil se obtienen en esta primer etapa desde el software descargable desde https://www.proyectohorus.com.ar.
+El usuario, Password y Perfil se obtienen en esta primer etapa desde el software descargable.
 
 Ejemplo de como usar el administrador aca:
 
