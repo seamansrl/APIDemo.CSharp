@@ -183,7 +183,7 @@ namespace APIDemo
                                     String Name = ReceiveOnMatrix[6];
                                     Double Confidence = Convert.ToDouble(ReceiveOnMatrix[8]);
 
-                                    this.FromServer.Text = "Left: " + left.ToString() + " | Right: " + right.ToString() + " | Top: " + top.ToString() + " | Left: " + left.ToString() + " | Name: " + Name + " | Confidence: " + Confidence.ToString();
+                                    this.FromServer.Text = "Top: " + top.ToString() + " | Left: " + left.ToString() + " | Bottom: " + bottom.ToString() + " | Right: " + right.ToString() + " | Name: " + Name + " | Confidence: " + Confidence.ToString();
                                 }
                             }
                         }
